@@ -16,7 +16,7 @@ export interface Product {
 }
 
 export interface CartItem {
-  id: string;
+  id?: string;
   productId: string;
   name: string;
   price: number;
@@ -25,10 +25,11 @@ export interface CartItem {
   color?: string;
   size?: string;
   customized?: boolean;
+  customizationDetails?: string;
 }
 
 export interface WishlistItem {
-  id: string;
+  id?: string;
   productId: string;
   name: string;
   price: number;
@@ -36,12 +37,14 @@ export interface WishlistItem {
   color?: string;
   size?: string;
   customized?: boolean;
+  customizationDetails?: string;
 }
 
 export interface User {
   id: string;
   email: string;
   name?: string;
+  displayName?: string;
 }
 
 export interface Order {
@@ -52,3 +55,4 @@ export interface Order {
   status: "pending" | "processing" | "shipped" | "delivered";
   createdAt: Date;
 }
+

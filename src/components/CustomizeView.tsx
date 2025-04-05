@@ -43,13 +43,13 @@ const CustomizeView: React.FC<CustomizeViewProps> = ({
   const previousAngle = () => {
     const currentIndex = angles.indexOf(activeAngle);
     const prevIndex = currentIndex === 0 ? angles.length - 1 : currentIndex - 1;
-    onRotate(angles[prevIndex]);
+    onRotate();
   };
 
   const nextAngle = () => {
     const currentIndex = angles.indexOf(activeAngle);
     const nextIndex = currentIndex === angles.length - 1 ? 0 : currentIndex + 1;
-    onRotate(angles[nextIndex]);
+    onRotate();
   };
 
   return (
