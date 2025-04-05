@@ -13,6 +13,9 @@ import CustomizePage from "./pages/CustomizePage";
 import WishlistPage from "./pages/WishlistPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import OrderConfirmationPage from "./pages/OrderConfirmationPage";
+import OrderTrackingPage from "./pages/OrderTrackingPage";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -45,6 +48,9 @@ const App = () => {
                       <Route path="/wishlist" element={<WishlistPage />} />
                       <Route path="/login" element={<LoginPage />} />
                       <Route path="/signup" element={<SignupPage />} />
+                      <Route path="/checkout" element={<CheckoutPage />} />
+                      <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
+                      <Route path="/order-tracking" element={<OrderTrackingPage />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </main>

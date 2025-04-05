@@ -10,6 +10,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { cn } from "@/lib/utils";
 import { HeartIcon, ShoppingCartIcon } from "lucide-react";
+import CustomizeView from "@/components/CustomizeView";
 
 const CUSTOMIZATION_COLORS = [
   { name: "White", value: "#FFFFFF", textColor: "text-gray-900" },
@@ -34,6 +35,7 @@ const shoePartsBaseDunk = [
 ];
 
 const SIZES = ["US 7", "US 8", "US 9", "US 10", "US 11", "US 12"];
+const ANGLES = [0, 45, 90, 180, 270];
 
 interface CustomizationState {
   [key: string]: string;
@@ -49,6 +51,7 @@ const CustomizePage = () => {
   const [selectedSize, setSelectedSize] = useState<string>(SIZES[2]); // Default to US 9
   const [price, setPrice] = useState(150); // Default price for customization
   const [activeTab, setActiveTab] = useState("design");
+  const [activeAngle, setActiveAngle] = useState(ANGLES[0]);
 
   const { addToCart } = useCart();
   const { addToWishlist } = useWishlist();
@@ -78,6 +81,17 @@ const CustomizePage = () => {
     }));
   };
 
+  const handleRotate = (angle = undefined) => {
+    if (angle !== undefined) {
+      setActiveAngle(angle);
+    } else {
+      // Cycle through angles if no specific angle is provided
+      const currentIndex = ANGLES.indexOf(activeAngle);
+      const nextIndex = (currentIndex + 1) % ANGLES.length;
+      setActiveAngle(ANGLES[nextIndex]);
+    }
+  };
+
   const handleAddToCart = () => {
     if (!selectedSize) {
       toast.error("Please select a size");
@@ -96,6 +110,7 @@ const CustomizePage = () => {
       imageUrl: baseProduct?.imageUrl || "https://static.nike.com/a/images/t_PDP_864_v1/f_auto,b_rgb:f5f5f5/dd40b594-4ef5-437d-8ea7-dd83a18e2a9c/custom-nike-dunk-high-by-you-shoes.png", 
       size: selectedSize,
       customized: true,
+      customizationDetails: JSON.stringify(customization),
     });
 
     toast.success("Added custom design to cart!");
@@ -118,6 +133,7 @@ const CustomizePage = () => {
       imageUrl: baseProduct?.imageUrl || "https://static.nike.com/a/images/t_PDP_864_v1/f_auto,b_rgb:f5f5f5/dd40b594-4ef5-437d-8ea7-dd83a18e2a9c/custom-nike-dunk-high-by-you-shoes.png",
       size: selectedSize,
       customized: true,
+      customizationDetails: JSON.stringify(customization),
     });
 
     toast.success("Saved custom design to wishlist!");
@@ -132,28 +148,14 @@ const CustomizePage = () => {
       <div className="flex flex-col lg:flex-row gap-10">
         {/* Preview */}
         <div className="w-full lg:w-1/2 mb-8 lg:mb-0">
-          <div className="bg-gray-50 rounded-lg h-[500px] flex items-center justify-center p-8 mb-4 relative overflow-hidden">
-            {/* This would be replaced with an actual interactive 3D model in a real app */}
-            <img
-              src={baseProduct?.imageUrl || "https://static.nike.com/a/images/t_PDP_864_v1/f_auto,b_rgb:f5f5f5/dd40b594-4ef5-437d-8ea7-dd83a18e2a9c/custom-nike-dunk-high-by-you-shoes.png"}
-              alt="Customizable Sneaker"
-              className="w-full h-full object-contain transform hover:scale-105 transition-transform duration-300"
-            />
-            
-            {/* Color Indicators - just for visual representation */}
-            <div className="absolute bottom-4 left-4 flex space-x-2">
-              {Object.entries(customization).map(([partId, color]) => (
-                <div
-                  key={partId}
-                  className="w-6 h-6 rounded-full border-2 border-white shadow-sm"
-                  style={{ backgroundColor: color }}
-                  title={`${shoeParts.find(p => p.id === partId)?.name}: ${color}`}
-                />
-              ))}
-            </div>
-          </div>
+          <CustomizeView 
+            colors={customization} 
+            onRotate={handleRotate} 
+            activeAngle={activeAngle} 
+            angles={ANGLES}
+          />
 
-          <div className="bg-white p-6 rounded-lg shadow-sm">
+          <div className="bg-white p-6 rounded-lg shadow-sm mt-4">
             <h2 className="text-xl font-semibold mb-4">Your Custom Sneaker</h2>
             {baseProduct ? (
               <p className="text-gray-600 mb-4">
@@ -234,8 +236,10 @@ const CustomizePage = () => {
                         <button
                           key={`${part.id}-${color.value}`}
                           className={cn(
-                            "color-swatch flex items-center justify-center",
-                            customization[part.id] === color.value && "active",
+                            "color-swatch h-10 rounded-full flex items-center justify-center border-2",
+                            customization[part.id] === color.value 
+                              ? "border-kickverse-purple" 
+                              : "border-transparent",
                             color.textColor
                           )}
                           style={{ backgroundColor: color.value }}

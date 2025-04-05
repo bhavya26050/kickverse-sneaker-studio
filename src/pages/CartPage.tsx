@@ -18,8 +18,7 @@ const CartPage = () => {
       return;
     }
 
-    // Here you would proceed to checkout
-    toast("Proceeding to checkout...");
+    // Navigate to checkout page will happen through the link
   };
 
   return (
@@ -176,12 +175,16 @@ const CartPage = () => {
               </div>
               
               <Button
+                asChild
                 className="w-full bg-kickverse-purple hover:bg-kickverse-purple/80"
                 size="lg"
                 onClick={handleCheckout}
+                disabled={!isAuthenticated}
               >
-                Proceed to Checkout
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <Link to={isAuthenticated ? "/checkout" : "/login"}>
+                  Proceed to Checkout
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
               </Button>
               
               {!isAuthenticated && (
