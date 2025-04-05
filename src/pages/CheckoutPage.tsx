@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -173,12 +172,14 @@ const CheckoutPage = () => {
         customization_details: item.customizationDetails || null
       }));
 
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
+      if (orderItems.length > 0) {
+        const { error: itemsError } = await supabase
+          .from('order_items')
+          .insert(orderItems);
 
-      if (itemsError) {
-        throw new Error(`Error creating order items: ${itemsError.message}`);
+        if (itemsError) {
+          throw new Error(`Error creating order items: ${itemsError.message}`);
+        }
       }
       
       // Store order details in localStorage for retrieval on confirmation page

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -51,6 +50,7 @@ const OrdersPage = () => {
           .order('created_at', { ascending: false });
 
         if (ordersError) throw ordersError;
+        if (!ordersData) return;
 
         // Fetch order items for each order
         const ordersWithItems = await Promise.all(
@@ -61,11 +61,13 @@ const OrdersPage = () => {
               .eq('order_id', order.id);
 
             if (itemsError) throw itemsError;
-
+            
             return {
               ...order,
-              items: itemsData,
-              itemCount: itemsData.reduce((sum: number, item: any) => sum + item.quantity, 0)
+              items: itemsData || [],
+              itemCount: (itemsData || []).reduce(
+                (sum: number, item: any) => sum + item.quantity, 0
+              )
             };
           })
         );

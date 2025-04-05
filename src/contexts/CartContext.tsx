@@ -118,12 +118,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
               customization_details: item.customizationDetails || null
             }));
             
-            const { error } = await supabase
-              .from('cart_items')
-              .insert(supabaseItems);
-              
-            if (error) {
-              console.error("Error saving cart to Supabase:", error);
+            if (supabaseItems.length > 0) {
+              const { error } = await supabase
+                .from('cart_items')
+                .insert(supabaseItems);
+                
+              if (error) {
+                console.error("Error saving cart to Supabase:", error);
+              }
             }
           }
         } catch (err) {

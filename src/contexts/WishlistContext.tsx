@@ -114,12 +114,14 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               customization_details: item.customizationDetails || null
             }));
             
-            const { error } = await supabase
-              .from('wishlist_items')
-              .insert(supabaseItems);
-              
-            if (error) {
-              console.error("Error saving wishlist to Supabase:", error);
+            if (supabaseItems.length > 0) {
+              const { error } = await supabase
+                .from('wishlist_items')
+                .insert(supabaseItems);
+                
+              if (error) {
+                console.error("Error saving wishlist to Supabase:", error);
+              }
             }
           }
         } catch (err) {
