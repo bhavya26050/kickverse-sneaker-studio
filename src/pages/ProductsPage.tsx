@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Filter, Search, ChevronDown } from "lucide-react";
@@ -19,7 +20,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import ProductCard from "@/components/ProductCard";
-import { products } from "@/data/products";
+import { fetchProducts } from "@/data/products";
 import { Product } from "@/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -27,6 +28,8 @@ import { Label } from "@/components/ui/label";
 const ProductsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [sortBy, setSortBy] = useState("featured");
   const [filters, setFilters] = useState({
@@ -35,9 +38,26 @@ const ProductsPage = () => {
     customizable: false,
   });
 
+  // Load products from API
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true);
+      try {
+        const products = await fetchProducts();
+        setAllProducts(products);
+      } catch (error) {
+        console.error("Error loading products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, []);
+
   // Extract all available categories from products
   const categories = Array.from(
-    new Set(products.map((product) => product.category))
+    new Set(allProducts.map((product) => product.category))
   );
 
   // Handle search input change
@@ -92,7 +112,7 @@ const ProductsPage = () => {
       setFilters({ ...filters, categories: updatedCategories });
     }
 
-    let filtered = [...products];
+    let filtered = [...allProducts];
 
     // Apply search filter
     if (searchTerm) {
@@ -144,7 +164,7 @@ const ProductsPage = () => {
     }
 
     setFilteredProducts(filtered);
-  }, [searchParams, filters, sortBy]);
+  }, [searchParams, filters, sortBy, allProducts]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -215,8 +235,6 @@ const ProductsPage = () => {
                   </div>
                 </div>
 
-                {/* Price Range Filter - could be implemented with a slider component */}
-
                 {/* Customizable Filter */}
                 <div>
                   <h3 className="font-medium mb-3">Customization</h3>
@@ -264,8 +282,6 @@ const ProductsPage = () => {
             </div>
           </div>
 
-          {/* Price Range Filter - could be implemented with a slider component */}
-
           {/* Customizable Filter */}
           <div>
             <h3 className="font-medium mb-3">Customization</h3>
@@ -289,7 +305,9 @@ const ProductsPage = () => {
           {/* Sort Dropdown */}
           <div className="flex justify-between items-center mb-6">
             <p className="text-gray-600">
-              Showing {filteredProducts.length} results
+              {loading 
+                ? "Loading products..." 
+                : `Showing ${filteredProducts.length} results`}
             </p>
             <div className="flex items-center">
               <span className="mr-2 text-gray-600">Sort by:</span>
@@ -311,14 +329,21 @@ const ProductsPage = () => {
             </div>
           </div>
 
+          {/* Loading State */}
+          {loading && (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-kickverse-purple"></div>
+            </div>
+          )}
+
           {/* Products Grid */}
-          {filteredProducts.length > 0 ? (
+          {!loading && filteredProducts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
-          ) : (
+          ) : !loading && (
             <div className="text-center py-12">
               <h3 className="text-xl font-medium mb-2">No products found</h3>
               <p className="text-gray-600 mb-6">

@@ -2,9 +2,10 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { HeartIcon, ShoppingCartIcon } from "lucide-react";
+import { Product } from "@/types";
 
 interface ProductSummaryProps {
-  baseProduct: any;
+  baseProduct: Product | null;
   price: number;
   handleSaveToWishlist: () => void;
   handleAddToCart: () => void;

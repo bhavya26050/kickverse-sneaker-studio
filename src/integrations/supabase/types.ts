@@ -9,7 +9,230 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      cart_items: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          customization_details: string | null
+          customized: boolean | null
+          id: string
+          image_url: string
+          name: string
+          price: number
+          product_id: string
+          quantity: number
+          size: string | null
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          customization_details?: string | null
+          customized?: boolean | null
+          id?: string
+          image_url: string
+          name: string
+          price: number
+          product_id: string
+          quantity?: number
+          size?: string | null
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          customization_details?: string | null
+          customized?: boolean | null
+          id?: string
+          image_url?: string
+          name?: string
+          price?: number
+          product_id?: string
+          quantity?: number
+          size?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      order_items: {
+        Row: {
+          color: string | null
+          customization_details: string | null
+          customized: boolean | null
+          id: string
+          image_url: string
+          name: string
+          order_id: string
+          price: number
+          product_id: string
+          quantity: number
+          size: string | null
+        }
+        Insert: {
+          color?: string | null
+          customization_details?: string | null
+          customized?: boolean | null
+          id?: string
+          image_url: string
+          name: string
+          order_id: string
+          price: number
+          product_id: string
+          quantity: number
+          size?: string | null
+        }
+        Update: {
+          color?: string | null
+          customization_details?: string | null
+          customized?: boolean | null
+          id?: string
+          image_url?: string
+          name?: string
+          order_id?: string
+          price?: number
+          product_id?: string
+          quantity?: number
+          size?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string | null
+          estimated_delivery: string | null
+          id: string
+          payment_method: string
+          shipping_info: Json
+          status: string
+          total: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          estimated_delivery?: string | null
+          id?: string
+          payment_method: string
+          shipping_info: Json
+          status?: string
+          total: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          estimated_delivery?: string | null
+          id?: string
+          payment_method?: string
+          shipping_info?: Json
+          status?: string
+          total?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string
+          colors: Json | null
+          created_at: string | null
+          description: string
+          id: string
+          image_url: string
+          in_stock: boolean | null
+          is_customizable: boolean | null
+          name: string
+          original_price: number | null
+          price: number
+          quantity: number | null
+          rating: number | null
+          review_count: number | null
+          sizes: Json | null
+        }
+        Insert: {
+          category: string
+          colors?: Json | null
+          created_at?: string | null
+          description: string
+          id?: string
+          image_url: string
+          in_stock?: boolean | null
+          is_customizable?: boolean | null
+          name: string
+          original_price?: number | null
+          price: number
+          quantity?: number | null
+          rating?: number | null
+          review_count?: number | null
+          sizes?: Json | null
+        }
+        Update: {
+          category?: string
+          colors?: Json | null
+          created_at?: string | null
+          description?: string
+          id?: string
+          image_url?: string
+          in_stock?: boolean | null
+          is_customizable?: boolean | null
+          name?: string
+          original_price?: number | null
+          price?: number
+          quantity?: number | null
+          rating?: number | null
+          review_count?: number | null
+          sizes?: Json | null
+        }
+        Relationships: []
+      }
+      wishlist_items: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          customization_details: string | null
+          customized: boolean | null
+          id: string
+          image_url: string
+          name: string
+          price: number
+          product_id: string
+          size: string | null
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          customization_details?: string | null
+          customized?: boolean | null
+          id?: string
+          image_url: string
+          name: string
+          price: number
+          product_id: string
+          size?: string | null
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          customization_details?: string | null
+          customized?: boolean | null
+          id?: string
+          image_url?: string
+          name?: string
+          price?: number
+          product_id?: string
+          size?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

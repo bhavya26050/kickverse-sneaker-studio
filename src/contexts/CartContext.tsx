@@ -4,6 +4,7 @@ import { CartItem } from "@/types";
 import { useAuth } from "./AuthContext";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { v4 as uuidv4 } from 'uuid';
 
 interface CartContextType {
   cartItems: CartItem[];
@@ -43,7 +44,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
               setCartItems(JSON.parse(savedCart));
             }
           } else if (data) {
-            // Transform Supabase data to CartItem format if needed
+            // Transform Supabase data to CartItem format
             const transformedItems: CartItem[] = data.map(item => ({
               id: item.id,
               productId: item.product_id,
@@ -146,7 +147,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       updateQuantity(existingItem.id, existingItem.quantity + item.quantity);
       toast.success(`Updated ${item.name} quantity in cart`);
     } else {
-      const newItem = { ...item, id: `cart-item-${Date.now()}-${Math.random().toString(36).substring(2, 9)}` };
+      const newItem = { ...item, id: uuidv4() };
       setCartItems((prev) => [...prev, newItem]);
       toast.success(`Added ${item.name} to cart`);
     }

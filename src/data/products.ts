@@ -1,7 +1,8 @@
-
 import { Product } from "@/types";
+import { supabase } from "@/integrations/supabase/client";
 
-export const products: Product[] = [
+// Fallback products in case the API call fails
+const fallbackProducts: Product[] = [
   {
     id: "1",
     name: "Air Force 1 Low",
@@ -14,7 +15,8 @@ export const products: Product[] = [
     sizes: ["US 7", "US 8", "US 9", "US 10", "US 11", "US 12"],
     rating: 4.8,
     reviewCount: 450,
-    inStock: true
+    inStock: true,
+    quantity: 75
   },
   {
     id: "2",
@@ -88,3 +90,45 @@ export const products: Product[] = [
     inStock: true
   }
 ];
+
+// Load products from Supabase
+export const fetchProducts = async (): Promise<Product[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*');
+    
+    if (error) {
+      console.error("Error fetching products:", error);
+      return fallbackProducts;
+    }
+    
+    if (!data || data.length === 0) {
+      return fallbackProducts;
+    }
+    
+    // Transform database products to match our Product interface
+    return data.map(item => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      originalPrice: item.original_price,
+      description: item.description,
+      imageUrl: item.image_url,
+      category: item.category,
+      isCustomizable: item.is_customizable,
+      colors: item.colors ? JSON.parse(item.colors) : [],
+      sizes: item.sizes ? JSON.parse(item.sizes) : [],
+      rating: item.rating,
+      reviewCount: item.review_count,
+      inStock: item.in_stock,
+      quantity: item.quantity
+    }));
+  } catch (error) {
+    console.error("Error in fetchProducts:", error);
+    return fallbackProducts;
+  }
+};
+
+// For immediate use (will be replaced when fetchProducts resolves)
+export const products = fallbackProducts;

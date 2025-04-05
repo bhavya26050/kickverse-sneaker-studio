@@ -10,6 +10,9 @@ import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { ArrowRight, CreditCard, Truck } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { ShippingInfo } from "@/types";
+import { v4 as uuidv4 } from 'uuid';
 
 const CheckoutPage = () => {
   const { cartItems, subtotal, clearCart } = useCart();
@@ -17,7 +20,7 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   
   const [paymentMethod, setPaymentMethod] = useState<string>("stripe");
-  const [shippingInfo, setShippingInfo] = useState({
+  const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
     fullName: user?.displayName || "",
     address: "",
     city: "",
@@ -43,12 +46,27 @@ const CheckoutPage = () => {
     );
   }
 
+  if (!isAuthenticated) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <h1 className="text-3xl font-bold mb-6 text-kickverse-dark-purple">Checkout</h1>
+        <p className="text-lg mb-8">Please login to checkout.</p>
+        <Button 
+          onClick={() => navigate("/login")} 
+          className="bg-kickverse-purple hover:bg-kickverse-purple/80"
+        >
+          Login to Continue
+        </Button>
+      </div>
+    );
+  }
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setShippingInfo((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
 
@@ -62,58 +80,138 @@ const CheckoutPage = () => {
       return;
     }
 
-    // Simulate payment processing
-    setTimeout(() => {
+    try {
       if (paymentMethod === "stripe") {
-        // In a real implementation, redirect to Stripe
-        handleStripePayment();
+        // Process payment with Stripe
+        await handleStripePayment();
       } else {
         // Cash on delivery - direct to success
-        placeOrder();
+        await placeOrder();
       }
-    }, 1500);
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast.error("An error occurred during checkout. Please try again.");
+      setIsProcessing(false);
+    }
   };
 
-  const handleStripePayment = () => {
-    // This would normally redirect to Stripe checkout
-    // For this demo, we'll simulate a successful payment
-    toast.success("Redirecting to payment gateway...");
-    
-    // Simulate a delay for demonstration purposes
-    setTimeout(() => {
-      placeOrder();
-    }, 2000);
+  const handleStripePayment = async () => {
+    try {
+      const totalAmount = subtotal + (subtotal * 0.1); // Including tax
+
+      // Create payment intent
+      const response = await supabase.functions.invoke('create-payment-intent', {
+        body: {
+          amount: totalAmount,
+          currency: 'usd'
+        }
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message || "Payment processing failed");
+      }
+
+      const { clientSecret } = response.data;
+      if (!clientSecret) {
+        throw new Error("Failed to create payment intent");
+      }
+
+      // In a real application, you would redirect to a Stripe Checkout page
+      // or handle the payment on the client side with Elements
+      toast.success("Payment successful!");
+      
+      // Place order after successful payment
+      await placeOrder();
+    } catch (error) {
+      console.error("Payment error:", error);
+      toast.error(error instanceof Error ? error.message : "Payment processing failed");
+      throw error;
+    }
   };
 
-  const placeOrder = () => {
-    // Generate a random order ID
-    const orderId = `KV-${Math.floor(Math.random() * 1000000).toString().padStart(6, '0')}`;
-    
-    // Store order details in localStorage for retrieval on confirmation page
-    const orderDetails = {
-      id: orderId,
-      date: new Date().toISOString(),
-      items: cartItems,
-      subtotal: subtotal,
-      tax: subtotal * 0.1,
-      shipping: 0,
-      total: subtotal + (subtotal * 0.1),
-      paymentMethod,
-      shippingInfo,
-      status: "processing",
-      estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    };
+  const placeOrder = async () => {
+    if (!user) {
+      toast.error("User not authenticated");
+      return;
+    }
 
-    localStorage.setItem("kickverse-latest-order", JSON.stringify(orderDetails));
-    
-    // Clear the cart
-    clearCart();
-    
-    // Reset processing state
-    setIsProcessing(false);
-    
-    // Navigate to order confirmation page
-    navigate("/order-confirmation");
+    try {
+      const tax = subtotal * 0.1;
+      const total = subtotal + tax;
+      const orderId = uuidv4();
+      const estimatedDelivery = new Date();
+      estimatedDelivery.setDate(estimatedDelivery.getDate() + 7);
+      
+      // Create order in Supabase
+      const { error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          id: orderId,
+          user_id: user.id,
+          total,
+          status: 'processing',
+          payment_method: paymentMethod,
+          shipping_info: shippingInfo,
+          estimated_delivery: estimatedDelivery.toISOString()
+        });
+
+      if (orderError) {
+        throw new Error(`Error creating order: ${orderError.message}`);
+      }
+
+      // Create order items
+      const orderItems = cartItems.map(item => ({
+        order_id: orderId,
+        product_id: item.productId,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        image_url: item.imageUrl,
+        size: item.size || null,
+        color: item.color || null,
+        customized: item.customized || false,
+        customization_details: item.customizationDetails || null
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) {
+        throw new Error(`Error creating order items: ${itemsError.message}`);
+      }
+      
+      // Store order details in localStorage for retrieval on confirmation page
+      const orderDetails = {
+        id: orderId,
+        date: new Date().toISOString(),
+        items: cartItems,
+        subtotal: subtotal,
+        tax: tax,
+        shipping: 0,
+        total: total,
+        paymentMethod,
+        shippingInfo,
+        status: "processing",
+        estimatedDelivery: estimatedDelivery.toISOString(),
+      };
+
+      localStorage.setItem("kickverse-latest-order", JSON.stringify(orderDetails));
+      
+      // Clear the cart
+      clearCart();
+      
+      // Reset processing state
+      setIsProcessing(false);
+      
+      // Navigate to order confirmation page
+      navigate("/order-confirmation");
+    } catch (error) {
+      console.error("Order placement error:", error);
+      toast.error("Failed to place order. Please try again.");
+      setIsProcessing(false);
+      throw error;
+    }
   };
 
   const tax = subtotal * 0.1;

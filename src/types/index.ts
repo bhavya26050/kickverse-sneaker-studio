@@ -13,6 +13,7 @@ export interface Product {
   rating?: number;
   reviewCount?: number;
   inStock?: boolean;
+  quantity?: number;
 }
 
 export interface CartItem {
@@ -54,5 +55,17 @@ export interface Order {
   total: number;
   status: "pending" | "processing" | "shipped" | "delivered";
   createdAt: Date;
+  paymentMethod: string;
+  shippingInfo: ShippingInfo;
+  estimatedDelivery?: Date;
 }
 
+export interface ShippingInfo {
+  fullName: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+  phone: string;
+}

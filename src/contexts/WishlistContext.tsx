@@ -4,6 +4,7 @@ import { WishlistItem } from "@/types";
 import { useAuth } from "./AuthContext";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { v4 as uuidv4 } from 'uuid';
 
 interface WishlistContextType {
   wishlistItems: WishlistItem[];
@@ -41,7 +42,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               setWishlistItems(JSON.parse(savedWishlist));
             }
           } else if (data) {
-            // Transform Supabase data to WishlistItem format if needed
+            // Transform Supabase data to WishlistItem format
             const transformedItems: WishlistItem[] = data.map(item => ({
               id: item.id,
               productId: item.product_id,
@@ -132,7 +133,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const addToWishlist = (item: Omit<WishlistItem, "id">) => {
     try {
-      const newItem = { ...item, id: `wishlist-item-${Date.now()}-${Math.random().toString(36).substring(2, 9)}` };
+      const newItem = { ...item, id: uuidv4() };
       setWishlistItems((prev) => [...prev, newItem]);
       toast.success(`Added ${item.name} to wishlist`);
     } catch (error) {
