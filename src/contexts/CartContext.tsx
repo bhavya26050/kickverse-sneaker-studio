@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { CartItem } from "@/types";
 import { useAuth } from "./AuthContext";
@@ -23,13 +22,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const { user, isAuthenticated } = useAuth();
 
-  // Load cart from Supabase or localStorage when component mounts or user changes
   useEffect(() => {
     const loadCart = async () => {
       setIsLoading(true);
       try {
         if (isAuthenticated && user) {
-          // Try to load from Supabase if user is authenticated
           const { data, error } = await supabase
             .from('cart_items')
             .select('*')
@@ -37,14 +34,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           if (error) {
             console.error("Error loading cart from Supabase:", error);
-            // Fallback to localStorage if Supabase fails
             const storageKey = `kickverse-cart-${user.id}`;
             const savedCart = localStorage.getItem(storageKey);
             if (savedCart) {
               setCartItems(JSON.parse(savedCart));
             }
           } else if (data) {
-            // Transform Supabase data to CartItem format
             const transformedItems: CartItem[] = data.map(item => ({
               id: item.id,
               productId: item.product_id,
@@ -60,7 +55,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setCartItems(transformedItems);
           }
         } else {
-          // Load from localStorage if user is not authenticated
           const storageKey = "kickverse-cart-guest";
           const savedCart = localStorage.getItem(storageKey);
           if (savedCart) {
@@ -69,7 +63,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } catch (err) {
         console.error("Error in loadCart:", err);
-        // Fallback to localStorage
         const storageKey = user ? `kickverse-cart-${user.id}` : "kickverse-cart-guest";
         const savedCart = localStorage.getItem(storageKey);
         if (savedCart) {
@@ -83,26 +76,21 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loadCart();
   }, [user, isAuthenticated]);
 
-  // Save cart to Supabase and localStorage whenever it changes
   useEffect(() => {
-    if (isLoading) return; // Don't save during initial loading
+    if (isLoading) return;
 
     const saveCart = async () => {
       const storageKey = user ? `kickverse-cart-${user.id}` : "kickverse-cart-guest";
       
-      // Always save to localStorage as a backup
       localStorage.setItem(storageKey, JSON.stringify(cartItems));
       
-      // If user is logged in, also save to Supabase
       if (isAuthenticated && user) {
         try {
-          // First, remove all existing items
           await supabase
             .from('cart_items')
             .delete()
             .eq('user_id', user.id);
           
-          // Then insert all current items
           if (cartItems.length > 0) {
             const supabaseItems = cartItems.map(item => ({
               id: item.id,
@@ -137,7 +125,67 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     saveCart();
   }, [cartItems, user, isAuthenticated, isLoading]);
 
-  const addToCart = (item: Omit<CartItem, "id">) => {
+  const addToCart = async (item: Omit<CartItem, "id">) => {
+    if (!item.customized) {
+      try {
+        const { data: product, error } = await supabase
+          .from('products')
+          .select('quantity, in_stock')
+          .eq('id', item.productId)
+          .single();
+        
+        if (error) {
+          console.error("Error checking product availability:", error);
+        } else if (product) {
+          if (!product.in_stock) {
+            toast.error(`Sorry, ${item.name} is out of stock`);
+            return;
+          }
+          
+          const existingItem = cartItems.find(
+            (cartItem) => 
+              cartItem.productId === item.productId && 
+              cartItem.color === item.color && 
+              cartItem.size === item.size
+          );
+          
+          const currentQuantity = existingItem ? existingItem.quantity : 0;
+          const requestedQuantity = currentQuantity + item.quantity;
+          
+          if (product.quantity !== null && requestedQuantity > product.quantity) {
+            toast.error(`Sorry, only ${product.quantity} units available`);
+            return;
+          }
+          
+          if (existingItem) {
+            updateQuantity(existingItem.id, requestedQuantity);
+            toast.success(`Updated ${item.name} quantity in cart`);
+          } else {
+            const newItem = { ...item, id: uuidv4() };
+            setCartItems((prev) => [...prev, newItem]);
+            toast.success(`Added ${item.name} to cart`);
+          }
+          
+          if (product.quantity !== null) {
+            await supabase
+              .from('products')
+              .update({
+                quantity: product.quantity - item.quantity,
+                in_stock: (product.quantity - item.quantity) > 0
+              })
+              .eq('id', item.productId);
+          }
+        }
+      } catch (err) {
+        console.error("Error in addToCart:", err);
+        addToCartFallback(item);
+      }
+    } else {
+      addToCartFallback(item);
+    }
+  };
+
+  const addToCartFallback = (item: Omit<CartItem, "id">) => {
     const existingItem = cartItems.find(
       (cartItem) => 
         cartItem.productId === item.productId && 
