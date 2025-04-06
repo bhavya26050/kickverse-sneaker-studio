@@ -30,7 +30,6 @@ serve(async (req) => {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     
     if (!stripeKey) {
-      // Return a dummy client secret for demonstration purposes
       console.log("No Stripe key found, returning demo client secret");
       return new Response(
         JSON.stringify({
@@ -59,6 +58,8 @@ serve(async (req) => {
         source: "kickverse_ecommerce",
       },
     });
+
+    console.log("Created payment intent:", paymentIntent.id);
 
     // Return the client secret to the frontend
     return new Response(

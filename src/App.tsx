@@ -4,6 +4,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Elements } from "@stripe/react-stripe-js";
+import { stripePromise } from "@/utils/stripeUtils";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ProductsPage from "./pages/ProductsPage";
@@ -33,33 +35,35 @@ const App = () => {
       <AuthProvider>
         <CartProvider>
           <WishlistProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <div className="flex flex-col min-h-screen">
-                  <Navbar />
-                  <main className="flex-grow">
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/products" element={<ProductsPage />} />
-                      <Route path="/products/:id" element={<ProductDetailPage />} />
-                      <Route path="/cart" element={<CartPage />} />
-                      <Route path="/customize" element={<CustomizePage />} />
-                      <Route path="/wishlist" element={<WishlistPage />} />
-                      <Route path="/login" element={<LoginPage />} />
-                      <Route path="/signup" element={<SignupPage />} />
-                      <Route path="/checkout" element={<CheckoutPage />} />
-                      <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
-                      <Route path="/order-tracking" element={<OrderTrackingPage />} />
-                      <Route path="/orders" element={<OrdersPage />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </main>
-                  <Footer />
-                </div>
-              </BrowserRouter>
-            </TooltipProvider>
+            <Elements stripe={stripePromise}>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <div className="flex flex-col min-h-screen">
+                    <Navbar />
+                    <main className="flex-grow">
+                      <Routes>
+                        <Route path="/" element={<Index />} />
+                        <Route path="/products" element={<ProductsPage />} />
+                        <Route path="/products/:id" element={<ProductDetailPage />} />
+                        <Route path="/cart" element={<CartPage />} />
+                        <Route path="/customize" element={<CustomizePage />} />
+                        <Route path="/wishlist" element={<WishlistPage />} />
+                        <Route path="/login" element={<LoginPage />} />
+                        <Route path="/signup" element={<SignupPage />} />
+                        <Route path="/checkout" element={<CheckoutPage />} />
+                        <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
+                        <Route path="/order-tracking" element={<OrderTrackingPage />} />
+                        <Route path="/orders" element={<OrdersPage />} />
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </main>
+                    <Footer />
+                  </div>
+                </BrowserRouter>
+              </TooltipProvider>
+            </Elements>
           </WishlistProvider>
         </CartProvider>
       </AuthProvider>

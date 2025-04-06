@@ -1,6 +1,7 @@
 
 import { Product } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
+import { getFallbackImage } from "@/utils/imageUtils";
 
 // Fallback products in case the API call fails
 const fallbackProducts: Product[] = [
@@ -101,15 +102,15 @@ export const fetchProducts = async (): Promise<Product[]> => {
     
     if (error) {
       console.error("Error fetching products:", error);
-      return fallbackProducts;
+      return ensureProductImages(fallbackProducts);
     }
     
     if (!data || data.length === 0) {
-      return fallbackProducts;
+      return ensureProductImages(fallbackProducts);
     }
     
     // Transform database products to match our Product interface
-    return data.map(item => ({
+    const products = data.map(item => ({
       id: item.id,
       name: item.name,
       price: item.price,
@@ -125,11 +126,24 @@ export const fetchProducts = async (): Promise<Product[]> => {
       inStock: item.in_stock,
       quantity: item.quantity
     }));
+    
+    return ensureProductImages(products);
   } catch (error) {
     console.error("Error in fetchProducts:", error);
-    return fallbackProducts;
+    return ensureProductImages(fallbackProducts);
   }
 };
 
+// Ensure all products have valid image URLs
+const ensureProductImages = (products: Product[]): Product[] => {
+  return products.map(product => ({
+    ...product,
+    imageUrl: product.imageUrl || getFallbackImage(product.id)
+  }));
+};
+
 // For immediate use (will be replaced when fetchProducts resolves)
-export const products = fallbackProducts;
+export const products = fallbackProducts.map(product => ({
+  ...product,
+  imageUrl: product.imageUrl || getFallbackImage(product.id)
+}));

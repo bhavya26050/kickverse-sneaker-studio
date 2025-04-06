@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -13,6 +12,9 @@ import { ArrowRight, CreditCard, Truck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ShippingInfo } from "@/types";
 import { v4 as uuidv4 } from 'uuid';
+import { processPayment } from "@/utils/stripeUtils";
+import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { stripePromise } from "@/utils/stripeUtils";
 
 const CheckoutPage = () => {
   const { cartItems, subtotal, clearCart } = useCart();
@@ -100,25 +102,17 @@ const CheckoutPage = () => {
       const totalAmount = subtotal + (subtotal * 0.1); // Including tax
 
       // Create payment intent
-      const response = await supabase.functions.invoke('create-payment-intent', {
-        body: {
-          amount: totalAmount,
-          currency: 'usd'
-        }
-      });
+      const result = await processPayment(totalAmount);
 
-      if (response.error) {
-        throw new Error(response.error.message || "Payment processing failed");
+      if (!result.success) {
+        throw new Error(result.error || "Payment processing failed");
       }
 
-      const { clientSecret } = response.data;
-      if (!clientSecret) {
-        throw new Error("Failed to create payment intent");
+      if (result.isDemoMode) {
+        toast.info("Using demonstration mode: proceeding with order without actual payment");
+      } else {
+        toast.success("Payment successful!");
       }
-
-      // In a real application, you would redirect to a Stripe Checkout page
-      // or handle the payment on the client side with Elements
-      toast.success("Payment successful!");
       
       // Place order after successful payment
       await placeOrder();
