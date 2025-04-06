@@ -52,10 +52,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
               price: item.price,
               quantity: item.quantity,
               imageUrl: item.image_url,
-              size: item.size,
-              color: item.color,
-              customized: item.customized,
-              customizationDetails: item.customization_details
+              size: item.size || undefined,
+              color: item.color || undefined,
+              customized: item.customized || false,
+              customizationDetails: item.customization_details || undefined
             }));
             setCartItems(transformedItems);
           }

@@ -1,3 +1,4 @@
+
 import { Product } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -117,8 +118,8 @@ export const fetchProducts = async (): Promise<Product[]> => {
       imageUrl: item.image_url,
       category: item.category,
       isCustomizable: item.is_customizable,
-      colors: item.colors ? item.colors : [],
-      sizes: item.sizes ? item.sizes : [],
+      colors: item.colors ? (item.colors as string[]) : [],
+      sizes: item.sizes ? (item.sizes as string[]) : [],
       rating: item.rating,
       reviewCount: item.review_count,
       inStock: item.in_stock,

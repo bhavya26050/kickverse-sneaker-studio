@@ -49,10 +49,10 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               name: item.name,
               price: item.price,
               imageUrl: item.image_url,
-              size: item.size,
-              color: item.color,
-              customized: item.customized,
-              customizationDetails: item.customization_details
+              size: item.size || undefined,
+              color: item.color || undefined,
+              customized: item.customized || false,
+              customizationDetails: item.customization_details || undefined
             }));
             setWishlistItems(transformedItems);
           }

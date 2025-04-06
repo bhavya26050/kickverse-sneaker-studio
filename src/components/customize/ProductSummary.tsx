@@ -32,20 +32,20 @@ const ProductSummary: React.FC<ProductSummaryProps> = ({
       <div className="flex justify-between items-center">
         <div>
           <span className="text-sm text-gray-600">Custom Price:</span>
-          <span className="ml-2 text-2xl font-bold text-kickverse-purple">${price}</span>
+          <span className="ml-2 text-2xl font-bold text-kickverse-purple">${price.toFixed(2)}</span>
         </div>
         <div className="flex space-x-2">
           <Button
             variant="outline"
             onClick={handleSaveToWishlist}
-            className="border-kickverse-purple text-kickverse-purple"
+            className="border-kickverse-purple text-kickverse-purple hover:bg-kickverse-purple/10"
           >
             <HeartIcon className="mr-2 h-4 w-4" />
             Save Design
           </Button>
           <Button
             onClick={handleAddToCart}
-            className="bg-kickverse-purple hover:bg-kickverse-purple/80"
+            className="bg-kickverse-purple hover:bg-kickverse-purple/80 text-white"
           >
             <ShoppingCartIcon className="mr-2 h-4 w-4" />
             Add to Cart
