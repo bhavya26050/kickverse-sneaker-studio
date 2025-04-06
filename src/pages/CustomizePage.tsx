@@ -2,7 +2,7 @@
 import React from "react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { useCart } from "@/contexts/CartContext";
+import { useCart } from "@/contexts/cart/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import CustomizeView from "@/components/CustomizeView";
 import CustomizationPanel from "@/components/customize/CustomizationPanel";

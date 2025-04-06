@@ -5,7 +5,7 @@ import { Product } from "@/types";
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useWishlist } from "@/contexts/WishlistContext";
-import { useCart } from "@/contexts/CartContext";
+import { useCart } from "@/contexts/cart/CartContext";
 import { cn } from "@/lib/utils";
 
 interface ProductCardProps {

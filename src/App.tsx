@@ -22,7 +22,7 @@ import OrdersPage from "./pages/OrdersPage";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { AuthProvider } from "./contexts/AuthContext";
-import { CartProvider } from "./contexts/CartContext";
+import { CartProvider } from "./contexts/cart/CartContext";
 import { WishlistProvider } from "./contexts/WishlistContext";
 import React from "react";
 
