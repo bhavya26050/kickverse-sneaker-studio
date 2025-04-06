@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Product } from "@/types";
@@ -7,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useCart } from "@/contexts/cart/CartContext";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface ProductCardProps {
   product: Product;
@@ -23,7 +23,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
     e.stopPropagation();
     
     if (inWishlist) {
-      // Find the wishlist item ID by product ID
       removeFromWishlist(product.id);
     } else {
       addToWishlist({
@@ -39,6 +38,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
     e.preventDefault();
     e.stopPropagation();
     
+    if (!product.inStock || (product.quantity !== undefined && product.quantity <= 0)) {
+      toast.error(`Sorry, ${product.name} is out of stock`);
+      return;
+    }
+    
     addToCart({
       productId: product.id,
       name: product.name,
@@ -47,6 +51,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
       quantity: 1,
     });
   };
+
+  const isOutOfStock = !product.inStock || (product.quantity !== undefined && product.quantity <= 0);
 
   return (
     <div className={cn("product-card group bg-white rounded-lg shadow-md overflow-hidden", className)}>
@@ -71,6 +77,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
           {product.originalPrice && (
             <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
               Sale
+            </div>
+          )}
+          
+          {isOutOfStock && (
+            <div className="absolute bottom-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+              Out of Stock
             </div>
           )}
         </div>
@@ -111,8 +123,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
           <Button 
             onClick={handleAddToCart}
             className="w-full mt-4 bg-kickverse-purple hover:bg-kickverse-purple/80"
+            disabled={isOutOfStock}
           >
-            Add to Cart
+            {isOutOfStock ? "Out of Stock" : "Add to Cart"}
           </Button>
         </div>
       </Link>

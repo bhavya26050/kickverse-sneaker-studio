@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Minus, Plus, Heart, Star, ShoppingCart, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { products } from "@/data/products";
-import { useCart } from "@/contexts/CartContext";
+import { useCart } from "@/contexts/cart/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { Product } from "@/types";
 import { cn } from "@/lib/utils";
@@ -21,15 +20,16 @@ const ProductDetailPage = () => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [maxAvailable, setMaxAvailable] = useState<number | null>(null);
 
-  // Find the product by ID
   useEffect(() => {
     const currentProduct = products.find(p => p.id === id);
     
     if (currentProduct) {
       setProduct(currentProduct);
       
-      // Set default selected color and size
+      setMaxAvailable(currentProduct.quantity || null);
+      
       if (currentProduct.colors && currentProduct.colors.length > 0) {
         setSelectedColor(currentProduct.colors[0]);
       }
@@ -38,7 +38,6 @@ const ProductDetailPage = () => {
         setSelectedSize(currentProduct.sizes[0]);
       }
 
-      // Find related products from the same category
       const related = products
         .filter(p => p.category === currentProduct.category && p.id !== currentProduct.id)
         .slice(0, 3);
@@ -50,7 +49,11 @@ const ProductDetailPage = () => {
   const inWishlist = product ? isInWishlist(product.id) : false;
 
   const handleIncreaseQuantity = () => {
-    setQuantity(prev => prev + 1);
+    if (maxAvailable === null || quantity < maxAvailable) {
+      setQuantity(prev => prev + 1);
+    } else {
+      toast.error(`Sorry, only ${maxAvailable} units available`);
+    }
   };
 
   const handleDecreaseQuantity = () => {
@@ -69,6 +72,11 @@ const ProductDetailPage = () => {
 
     if (!selectedColor) {
       toast.error("Please select a color");
+      return;
+    }
+
+    if (maxAvailable !== null && quantity > maxAvailable) {
+      toast.error(`Sorry, only ${maxAvailable} units available`);
       return;
     }
 
@@ -112,9 +120,10 @@ const ProductDetailPage = () => {
     );
   }
 
+  const isOutOfStock = maxAvailable === 0 || (product.inStock === false);
+
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Breadcrumbs */}
       <div className="flex items-center text-sm text-gray-500 mb-8">
         <Link to="/" className="hover:text-kickverse-purple transition-colors">Home</Link>
         <ChevronRight className="h-4 w-4 mx-2" />
@@ -124,7 +133,6 @@ const ProductDetailPage = () => {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-12 mb-16">
-        {/* Product Images */}
         <div className="w-full lg:w-1/2">
           <div className="bg-gray-50 rounded-lg overflow-hidden flex items-center justify-center h-[500px]">
             <img
@@ -135,11 +143,9 @@ const ProductDetailPage = () => {
           </div>
         </div>
 
-        {/* Product Info */}
         <div className="w-full lg:w-1/2">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
           
-          {/* Rating */}
           <div className="flex items-center mb-4">
             <div className="flex mr-2">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -159,7 +165,6 @@ const ProductDetailPage = () => {
             </span>
           </div>
 
-          {/* Price */}
           <div className="flex items-baseline mb-6">
             <span className="text-2xl font-bold text-gray-900">${product.price}</span>
             {product.originalPrice && (
@@ -169,10 +174,8 @@ const ProductDetailPage = () => {
             )}
           </div>
 
-          {/* Description */}
           <p className="text-gray-600 mb-8">{product.description}</p>
 
-          {/* Color Selection */}
           {product.colors && product.colors.length > 0 && (
             <div className="mb-6">
               <h3 className="text-sm font-medium text-gray-900 mb-3">Color</h3>
@@ -193,7 +196,6 @@ const ProductDetailPage = () => {
             </div>
           )}
 
-          {/* Size Selection */}
           {product.sizes && product.sizes.length > 0 && (
             <div className="mb-8">
               <div className="flex justify-between mb-3">
@@ -220,7 +222,19 @@ const ProductDetailPage = () => {
             </div>
           )}
 
-          {/* Quantity Selector */}
+          <div className="mb-4">
+            <span className={cn(
+              "font-medium text-sm",
+              isOutOfStock ? "text-red-600" : "text-green-600"
+            )}>
+              {isOutOfStock 
+                ? "Out of Stock" 
+                : maxAvailable 
+                  ? `In Stock (${maxAvailable} available)` 
+                  : "In Stock"}
+            </span>
+          </div>
+
           <div className="mb-8">
             <h3 className="text-sm font-medium text-gray-900 mb-3">Quantity</h3>
             <div className="flex items-center">
@@ -228,7 +242,7 @@ const ProductDetailPage = () => {
                 variant="outline"
                 size="icon"
                 onClick={handleDecreaseQuantity}
-                disabled={quantity <= 1}
+                disabled={quantity <= 1 || isOutOfStock}
               >
                 <Minus className="h-4 w-4" />
               </Button>
@@ -237,21 +251,22 @@ const ProductDetailPage = () => {
                 variant="outline"
                 size="icon"
                 onClick={handleIncreaseQuantity}
+                disabled={isOutOfStock || (maxAvailable !== null && quantity >= maxAvailable)}
               >
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
           </div>
 
-          {/* Add to Cart and Wishlist Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 mb-8">
             <Button 
               onClick={handleAddToCart}
               className="flex-1 bg-kickverse-purple hover:bg-kickverse-purple/80"
               size="lg"
+              disabled={isOutOfStock}
             >
               <ShoppingCart className="mr-2 h-5 w-5" />
-              Add to Cart
+              {isOutOfStock ? "Out of Stock" : "Add to Cart"}
             </Button>
             <Button
               variant="outline"
@@ -265,7 +280,6 @@ const ProductDetailPage = () => {
             </Button>
           </div>
 
-          {/* Customization Option */}
           {product.isCustomizable && (
             <div className="mb-8 p-4 bg-kickverse-soft-grey rounded-lg">
               <h3 className="font-medium mb-2">Customization Available!</h3>
@@ -280,7 +294,6 @@ const ProductDetailPage = () => {
             </div>
           )}
 
-          {/* Product Metadata */}
           <div className="border-t border-gray-200 pt-4">
             <div className="flex">
               <span className="text-sm text-gray-500 w-24">Category:</span>
@@ -295,16 +308,15 @@ const ProductDetailPage = () => {
               <span className="text-sm text-gray-500 w-24">Availability:</span>
               <span className={cn(
                 "text-sm",
-                product.inStock ? "text-green-600" : "text-red-600"
+                isOutOfStock ? "text-red-600" : "text-green-600"
               )}>
-                {product.inStock ? "In Stock" : "Out of Stock"}
+                {isOutOfStock ? "Out of Stock" : "In Stock"}
               </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Related Products */}
       {relatedProducts.length > 0 && (
         <div className="border-t border-gray-200 pt-12">
           <h2 className="text-2xl font-bold mb-8">You May Also Like</h2>
