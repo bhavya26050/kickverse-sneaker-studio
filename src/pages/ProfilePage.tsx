@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -18,6 +17,7 @@ interface ExtendedUser {
   fullName?: string;
   phoneNumber?: string;
   shippingAddress?: string;
+  createdAt?: string;
 }
 
 const ProfilePage = () => {
@@ -50,7 +50,8 @@ const ProfilePage = () => {
               fullName: '',
               avatarUrl: '',
               phoneNumber: '',
-              shippingAddress: ''
+              shippingAddress: '',
+              createdAt: new Date().toISOString() // Use current date as fallback
             });
           } else if (data) {
             // Map database profile to our user state
@@ -60,7 +61,8 @@ const ProfilePage = () => {
               fullName: data.full_name || '',
               avatarUrl: data.avatar_url || '',
               phoneNumber: data.phone_number || '',
-              shippingAddress: data.shipping_address || ''
+              shippingAddress: data.shipping_address || '',
+              createdAt: data.created_at || new Date().toISOString()
             });
           }
         } catch (err) {
@@ -169,7 +171,7 @@ const ProfilePage = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-500 mb-2">Member since {new Date(authUser?.created_at || '').toLocaleDateString()}</p>
+              <p className="text-sm text-gray-500 mb-2">Member since {new Date(user?.createdAt || '').toLocaleDateString()}</p>
             </CardContent>
           </Card>
         </div>
