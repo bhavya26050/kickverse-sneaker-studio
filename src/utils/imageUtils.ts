@@ -10,7 +10,11 @@ const fallbackImages = [
   "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=600&auto=format&fit=crop",
   "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&auto=format&fit=crop",
   "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=600&auto=format&fit=crop"
+  "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&auto=format&fit=crop"
 ];
 
 /**
@@ -52,4 +56,13 @@ export const getValidImageUrl = async (url: string, fallbackId?: string): Promis
   } catch (error) {
     return getFallbackImage(fallbackId);
   }
+};
+
+/**
+ * Add an error handler to an image element to use a fallback on error
+ */
+export const setupImageFallback = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+  const target = event.target as HTMLImageElement;
+  target.onerror = null; // Prevent infinite loop
+  target.src = getFallbackImage();
 };

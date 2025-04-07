@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { Product } from "@/types";
@@ -24,6 +25,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
     
     if (inWishlist) {
       removeFromWishlist(product.id);
+      toast.success(`${product.name} removed from wishlist`);
     } else {
       addToWishlist({
         productId: product.id,
@@ -31,6 +33,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
         price: product.price,
         imageUrl: product.imageUrl,
       });
+      toast.success(`${product.name} added to wishlist`);
     }
   };
 
@@ -50,6 +53,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
       imageUrl: product.imageUrl,
       quantity: 1,
     });
+    
+    toast.success(`${product.name} added to cart`);
   };
 
   const isOutOfStock = !product.inStock || (product.quantity !== undefined && product.quantity <= 0);
@@ -62,6 +67,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
             src={product.imageUrl}
             alt={product.name}
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.onerror = null;
+              target.src = "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=600&auto=format&fit=crop";
+            }}
           />
           <Button
             variant="ghost"

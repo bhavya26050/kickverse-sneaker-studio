@@ -32,7 +32,8 @@ const fallbackProducts: Product[] = [
     sizes: ["US 7", "US 8", "US 9", "US 10", "US 11", "US 12"],
     rating: 4.9,
     reviewCount: 820,
-    inStock: true
+    inStock: true,
+    quantity: 45
   },
   {
     id: "3",
@@ -46,7 +47,8 @@ const fallbackProducts: Product[] = [
     sizes: ["US 7", "US 8", "US 9", "US 10", "US 11", "US 12"],
     rating: 4.7,
     reviewCount: 670,
-    inStock: true
+    inStock: true,
+    quantity: 30
   },
   {
     id: "4",
@@ -61,7 +63,8 @@ const fallbackProducts: Product[] = [
     sizes: ["US 7", "US 8", "US 9", "US 10", "US 11", "US 12"],
     rating: 4.5,
     reviewCount: 320,
-    inStock: true
+    inStock: true,
+    quantity: 15
   },
   {
     id: "5",
@@ -75,7 +78,8 @@ const fallbackProducts: Product[] = [
     sizes: ["US 7", "US 8", "US 9", "US 10", "US 11", "US 12"],
     rating: 4.6,
     reviewCount: 280,
-    inStock: true
+    inStock: true,
+    quantity: 25
   },
   {
     id: "6",
@@ -89,7 +93,98 @@ const fallbackProducts: Product[] = [
     sizes: ["US 7", "US 8", "US 9", "US 10", "US 11", "US 12"],
     rating: 4.8,
     reviewCount: 560,
-    inStock: true
+    inStock: true,
+    quantity: 35
+  },
+  {
+    id: "7",
+    name: "Kyrie 7",
+    price: 130,
+    description: "The Kyrie 7 has a lightweight, cushioned design to help you move quickly and easily in any direction. It provides control and response when moving at high speeds on the court.",
+    imageUrl: "https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=600&auto=format&fit=crop",
+    category: "basketball",
+    isCustomizable: false,
+    colors: ["#FF0000", "#000000", "#0000FF"],
+    sizes: ["US 7", "US 8", "US 9", "US 10", "US 11", "US 12"],
+    rating: 4.5,
+    reviewCount: 215,
+    inStock: true,
+    quantity: 20
+  },
+  {
+    id: "8",
+    name: "Pegasus 38",
+    price: 120,
+    description: "The Nike Pegasus 38 continues to put a spring in your step, using responsive foam to help you stay crisp and fresh throughout your run.",
+    imageUrl: "https://images.unsplash.com/photo-1608667508764-33cf0726b13a?w=600&auto=format&fit=crop",
+    category: "running",
+    isCustomizable: false,
+    colors: ["#FFFFFF", "#000000", "#FF0000"],
+    sizes: ["US 7", "US 8", "US 9", "US 10", "US 11", "US 12"],
+    rating: 4.7,
+    reviewCount: 310,
+    inStock: true,
+    quantity: 25
+  },
+  {
+    id: "9",
+    name: "SB Dunk High",
+    price: 120,
+    description: "The Nike SB Dunk High delivers classic style and premium materials to help you push your limits every time you grind through a session.",
+    imageUrl: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&auto=format&fit=crop",
+    category: "skateboarding",
+    isCustomizable: true,
+    colors: ["#000000", "#FFFFFF", "#FF0000", "#0000FF"],
+    sizes: ["US 7", "US 8", "US 9", "US 10", "US 11", "US 12"],
+    rating: 4.6,
+    reviewCount: 185,
+    inStock: true,
+    quantity: 15
+  },
+  {
+    id: "10",
+    name: "LeBron 18",
+    price: 200,
+    description: "The LeBron 18 harnesses LeBron's supernatural speed and power with specialized cushioning and details designed to help you become an unstoppable force.",
+    imageUrl: "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=600&auto=format&fit=crop",
+    category: "basketball",
+    isCustomizable: false,
+    colors: ["#000000", "#FF0000", "#0000FF"],
+    sizes: ["US 7", "US 8", "US 9", "US 10", "US 11", "US 12"],
+    rating: 4.8,
+    reviewCount: 260,
+    inStock: true,
+    quantity: 18
+  },
+  {
+    id: "11",
+    name: "Zoom Freak 3",
+    price: 120,
+    description: "The Zoom Freak 3 helps Giannis create space with his massive strides and euro step. The multidirectional traction helps you stay in control.",
+    imageUrl: "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=600&auto=format&fit=crop",
+    category: "basketball",
+    isCustomizable: false,
+    colors: ["#000000", "#FFFFFF", "#FF0000"],
+    sizes: ["US 7", "US 8", "US 9", "US 10", "US 11", "US 12"],
+    rating: 4.5,
+    reviewCount: 190,
+    inStock: true,
+    quantity: 22
+  },
+  {
+    id: "12",
+    name: "ZoomX Vaporfly NEXT",
+    price: 250,
+    description: "The Nike ZoomX Vaporfly NEXT% clears your path to record-breaking speed with a lighter design and faster feel than before.",
+    imageUrl: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&auto=format&fit=crop",
+    category: "running",
+    isCustomizable: false,
+    colors: ["#FF0000", "#0000FF", "#00FF00"],
+    sizes: ["US 7", "US 8", "US 9", "US 10", "US 11", "US 12"],
+    rating: 4.9,
+    reviewCount: 320,
+    inStock: true,
+    quantity: 10
   }
 ];
 

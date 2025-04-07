@@ -19,6 +19,7 @@ import CheckoutPage from "./pages/CheckoutPage";
 import OrderConfirmationPage from "./pages/OrderConfirmationPage";
 import OrderTrackingPage from "./pages/OrderTrackingPage";
 import OrdersPage from "./pages/OrdersPage";
+import ProfilePage from "./pages/ProfilePage";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -56,6 +57,7 @@ const App = () => {
                         <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
                         <Route path="/order-tracking" element={<OrderTrackingPage />} />
                         <Route path="/orders" element={<OrdersPage />} />
+                        <Route path="/profile" element={<ProfilePage />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </main>
