@@ -1,342 +1,288 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { User, ShoppingBag, CreditCard, LogOut } from "lucide-react";
-
-type ProfileFormValues = {
-  name: string;
-  email: string;
-  address: string;
-  city: string;
-  state: string;
-  zip: string;
-  country: string;
-  phone: string;
-};
+import { User } from "@/types";
+import { Loader2, Package, ShoppingBag, Heart, Settings, LogOut } from "lucide-react";
 
 const ProfilePage = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<ProfileFormValues>({
-    defaultValues: {
-      name: user?.name || "",
-      email: user?.email || "",
-      address: "",
-      city: "",
-      state: "",
-      zip: "",
-      country: "",
-      phone: "",
-    }
-  });
+  const [userData, setUserData] = useState<User | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/login");
-    }
-    
-    const loadUserProfile = async () => {
-      if (!user?.id) return;
-      
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-          
-        if (error) {
-          console.error("Error loading profile", error);
-          return;
-        }
-        
-        if (data) {
-          setValue("name", data.name || user?.name || "");
-          setValue("address", data.address || "");
-          setValue("city", data.city || "");
-          setValue("state", data.state || "");
-          setValue("zip", data.zip || "");
-          setValue("country", data.country || "");
-          setValue("phone", data.phone || "");
-        }
-      } catch (err) {
-        console.error("Error fetching profile", err);
+    const checkAuth = async () => {
+      if (!isAuthenticated) {
+        navigate("/login");
+      } else {
+        await fetchUserData();
       }
     };
     
-    loadUserProfile();
-  }, [user, isAuthenticated, navigate, setValue]);
-  
-  const onSubmit = async (data: ProfileFormValues) => {
-    setIsLoading(true);
+    checkAuth();
+  }, [isAuthenticated, navigate]);
+
+  const fetchUserData = async () => {
+    if (!user) return;
     
+    setIsLoading(true);
     try {
-      if (!user?.id) {
-        toast.error("User not found");
-        return;
-      }
-      
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
-        .upsert({
-          id: user.id,
-          name: data.name,
-          address: data.address,
-          city: data.city,
-          state: data.state,
-          zip: data.zip,
-          country: data.country,
-          phone: data.phone,
-          updated_at: new Date().toISOString(),
-        });
-        
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
       if (error) {
-        toast.error("Failed to update profile");
-        console.error(error);
+        console.error("Error fetching user data:", error);
+      } else if (data) {
+        setUserData({
+          ...user,
+          fullName: data.full_name || user.email?.split('@')[0] || 'User',
+          avatarUrl: data.avatar_url,
+          phoneNumber: data.phone,
+          shippingAddress: data.shipping_address
+        });
       } else {
-        toast.success("Profile updated successfully");
-        setIsEditing(false);
+        setUserData({
+          ...user,
+          fullName: user.email?.split('@')[0] || 'User'
+        });
       }
-    } catch (err) {
-      console.error("Error updating profile", err);
-      toast.error("An error occurred while updating your profile");
+    } catch (error) {
+      console.error("Fetch user data error:", error);
     } finally {
       setIsLoading(false);
     }
   };
-  
-  const handleLogout = () => {
-    logout();
-    navigate("/");
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
-  
-  if (!isAuthenticated) {
-    return null;
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-16 flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-kickverse-purple" />
+      </div>
+    );
   }
-  
+
+  if (!isAuthenticated || !userData) {
+    return null; // Navigate will redirect to login
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">My Account</h1>
-      
-      <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="mb-6">
-          <TabsTrigger value="profile" className="flex items-center">
-            <User className="mr-2 h-4 w-4" />
-            Profile
-          </TabsTrigger>
-          <TabsTrigger value="orders" className="flex items-center">
-            <ShoppingBag className="mr-2 h-4 w-4" />
-            Orders
-          </TabsTrigger>
-          <TabsTrigger value="payment" className="flex items-center">
-            <CreditCard className="mr-2 h-4 w-4" />
-            Payment Methods
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="profile">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold">My Profile</h1>
+        <p className="text-gray-500">Manage your account and preferences</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* Sidebar */}
+        <div className="lg:col-span-1">
           <Card>
             <CardHeader>
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle>Profile Information</CardTitle>
-                  <CardDescription>Manage your account details</CardDescription>
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-kickverse-purple/10 flex items-center justify-center text-kickverse-purple">
+                  {userData.avatarUrl ? (
+                    <img
+                      src={userData.avatarUrl}
+                      alt={userData.fullName}
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-xl font-bold">
+                      {userData.fullName?.charAt(0).toUpperCase() || 'U'}
+                    </span>
+                  )}
                 </div>
-                {!isEditing && (
-                  <Button onClick={() => setIsEditing(true)} variant="outline">
+                <div>
+                  <h2 className="font-semibold text-lg">{userData.fullName}</h2>
+                  <p className="text-gray-500 text-sm">{userData.email}</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <nav className="space-y-2">
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start" 
+                  onClick={() => navigate("/orders")}
+                >
+                  <Package className="mr-2 h-4 w-4" />
+                  My Orders
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start" 
+                  onClick={() => navigate("/wishlist")}
+                >
+                  <Heart className="mr-2 h-4 w-4" />
+                  Wishlist
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start"
+                  onClick={() => navigate("/products")}
+                >
+                  <ShoppingBag className="mr-2 h-4 w-4" />
+                  Shop
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-red-500"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </Button>
+              </nav>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content */}
+        <div className="lg:col-span-3">
+          <Tabs defaultValue="profile">
+            <TabsList className="mb-6">
+              <TabsTrigger value="profile">Profile Info</TabsTrigger>
+              <TabsTrigger value="orders">Order History</TabsTrigger>
+              <TabsTrigger value="settings">Settings</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="profile">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Personal Information</CardTitle>
+                  <CardDescription>
+                    View and manage your personal details
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500 mb-1">Full Name</h3>
+                      <p className="font-medium">{userData.fullName || 'Not set'}</p>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500 mb-1">Email</h3>
+                      <p className="font-medium">{userData.email}</p>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500 mb-1">Phone</h3>
+                      <p className="font-medium">{userData.phoneNumber || 'Not set'}</p>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-1">Shipping Address</h3>
+                    <p className="font-medium">
+                      {userData.shippingAddress ? (
+                        userData.shippingAddress
+                      ) : (
+                        'No shipping address on file'
+                      )}
+                    </p>
+                  </div>
+                  
+                  <Button className="bg-kickverse-purple hover:bg-kickverse-purple/80">
+                    <Settings className="mr-2 h-4 w-4" />
                     Edit Profile
                   </Button>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Name</Label>
-                    <Input 
-                      id="name" 
-                      {...register("name", { required: "Name is required" })} 
-                      readOnly={!isEditing}
-                      className={!isEditing ? "bg-gray-50" : ""}
-                    />
-                    {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input 
-                      id="email" 
-                      {...register("email")} 
-                      readOnly={true}
-                      className="bg-gray-50"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone</Label>
-                    <Input 
-                      id="phone" 
-                      {...register("phone")} 
-                      readOnly={!isEditing}
-                      className={!isEditing ? "bg-gray-50" : ""}
-                    />
-                  </div>
-                </div>
-                
-                <Separator />
-                
-                <div>
-                  <h3 className="text-lg font-medium mb-4">Shipping Address</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="address">Address</Label>
-                      <Input 
-                        id="address" 
-                        {...register("address")} 
-                        readOnly={!isEditing}
-                        className={!isEditing ? "bg-gray-50" : ""}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="city">City</Label>
-                      <Input 
-                        id="city" 
-                        {...register("city")} 
-                        readOnly={!isEditing}
-                        className={!isEditing ? "bg-gray-50" : ""}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="state">State</Label>
-                      <Input 
-                        id="state" 
-                        {...register("state")} 
-                        readOnly={!isEditing}
-                        className={!isEditing ? "bg-gray-50" : ""}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="zip">ZIP Code</Label>
-                      <Input 
-                        id="zip" 
-                        {...register("zip")} 
-                        readOnly={!isEditing}
-                        className={!isEditing ? "bg-gray-50" : ""}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="country">Country</Label>
-                      <Input 
-                        id="country" 
-                        {...register("country")} 
-                        readOnly={!isEditing}
-                        className={!isEditing ? "bg-gray-50" : ""}
-                      />
-                    </div>
-                  </div>
-                </div>
-                
-                {isEditing && (
-                  <div className="flex justify-end space-x-2">
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="orders">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Order History</CardTitle>
+                  <CardDescription>
+                    View the status of your recent orders
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-8">
+                    <Package className="mx-auto h-12 w-12 text-gray-300" />
+                    <h3 className="mt-4 text-lg font-medium">No orders yet</h3>
+                    <p className="mt-1 text-sm text-gray-500">
+                      When you place an order, it will appear here
+                    </p>
                     <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => setIsEditing(false)}
+                      className="mt-4 bg-kickverse-purple hover:bg-kickverse-purple/80"
+                      onClick={() => navigate("/products")}
                     >
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={isLoading}>
-                      {isLoading ? "Saving..." : "Save Changes"}
+                      Browse Products
                     </Button>
                   </div>
-                )}
-              </form>
-            </CardContent>
-            <CardFooter className="flex flex-col items-start">
-              <div className="w-full">
-                <Separator className="my-4" />
-                <div className="flex justify-between items-center">
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="settings">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Account Settings</CardTitle>
+                  <CardDescription>
+                    Manage your account preferences
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-medium">Account Status</h3>
-                    <div className="flex items-center mt-2">
-                      <Badge variant="outline" className="mr-2">
-                        {user?.email_confirmed_at ? "Verified" : "Unverified"}
-                      </Badge>
-                      <span className="text-sm text-gray-500">
-                        Member since {user?.created_at ? new Date(user.created_at).toLocaleDateString() : "N/A"}
-                      </span>
+                    <h3 className="text-lg font-medium mb-4">Communication Preferences</h3>
+                    <div className="space-y-2">
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id="marketing-emails"
+                          className="h-4 w-4 text-kickverse-purple"
+                          defaultChecked
+                        />
+                        <label htmlFor="marketing-emails" className="ml-2 text-sm">
+                          Receive marketing emails about new products and promotions
+                        </label>
+                      </div>
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id="order-updates"
+                          className="h-4 w-4 text-kickverse-purple"
+                          defaultChecked
+                        />
+                        <label htmlFor="order-updates" className="ml-2 text-sm">
+                          Receive order status updates via email
+                        </label>
+                      </div>
                     </div>
                   </div>
-                  <Button onClick={handleLogout} variant="destructive">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
-                  </Button>
-                </div>
-              </div>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="orders">
-          <Card>
-            <CardHeader>
-              <CardTitle>Order History</CardTitle>
-              <CardDescription>View your past orders and track current ones</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col items-center justify-center py-12">
-                <ShoppingBag className="h-16 w-16 text-gray-300 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
-                <p className="text-gray-500 mb-6">Once you place an order, it will appear here</p>
-                <Button onClick={() => navigate("/products")}>Shop Now</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="payment">
-          <Card>
-            <CardHeader>
-              <CardTitle>Payment Methods</CardTitle>
-              <CardDescription>Manage your payment options</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col items-center justify-center py-12">
-                <CreditCard className="h-16 w-16 text-gray-300 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No payment methods saved</h3>
-                <p className="text-gray-500 mb-6">You can add a payment method during checkout</p>
-                <Button onClick={() => navigate("/products")}>Shop Now</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                  
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Account Management</h3>
+                    <div className="space-y-4">
+                      <Button variant="outline">Change Password</Button>
+                      <Button variant="outline" className="text-red-500">
+                        Delete Account
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,14 +1,16 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Minus, Plus, Heart, Star, ShoppingCart, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { products } from "@/data/products";
+import { fetchProducts } from "@/data/products";
 import { useCart } from "@/contexts/cart/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { Product } from "@/types";
 import { cn } from "@/lib/utils";
 import ProductCard from "@/components/ProductCard";
 import { toast } from "sonner";
+import { setupImageFallback } from "@/utils/imageUtils";
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,28 +23,42 @@ const ProductDetailPage = () => {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [maxAvailable, setMaxAvailable] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const currentProduct = products.find(p => p.id === id);
-    
-    if (currentProduct) {
-      setProduct(currentProduct);
-      
-      setMaxAvailable(currentProduct.quantity || null);
-      
-      if (currentProduct.colors && currentProduct.colors.length > 0) {
-        setSelectedColor(currentProduct.colors[0]);
-      }
-      
-      if (currentProduct.sizes && currentProduct.sizes.length > 0) {
-        setSelectedSize(currentProduct.sizes[0]);
-      }
+    const loadProduct = async () => {
+      setLoading(true);
+      try {
+        const products = await fetchProducts();
+        const currentProduct = products.find(p => p.id === id);
+        
+        if (currentProduct) {
+          setProduct(currentProduct);
+          setMaxAvailable(currentProduct.quantity || null);
+          
+          if (currentProduct.colors && currentProduct.colors.length > 0) {
+            setSelectedColor(currentProduct.colors[0]);
+          }
+          
+          if (currentProduct.sizes && currentProduct.sizes.length > 0) {
+            setSelectedSize(currentProduct.sizes[0]);
+          }
 
-      const related = products
-        .filter(p => p.category === currentProduct.category && p.id !== currentProduct.id)
-        .slice(0, 3);
-      
-      setRelatedProducts(related);
+          const related = products
+            .filter(p => p.category === currentProduct.category && p.id !== currentProduct.id)
+            .slice(0, 3);
+          
+          setRelatedProducts(related);
+        }
+      } catch (error) {
+        console.error("Error loading product:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      loadProduct();
     }
   }, [id]);
 
@@ -65,12 +81,12 @@ const ProductDetailPage = () => {
   const handleAddToCart = () => {
     if (!product) return;
 
-    if (!selectedSize) {
+    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
       toast.error("Please select a size");
       return;
     }
 
-    if (!selectedColor) {
+    if (product.colors && product.colors.length > 0 && !selectedColor) {
       toast.error("Please select a color");
       return;
     }
@@ -89,6 +105,8 @@ const ProductDetailPage = () => {
       color: selectedColor,
       size: selectedSize,
     });
+    
+    toast.success(`${product.name} added to your cart`);
   };
 
   const handleToggleWishlist = () => {
@@ -96,6 +114,7 @@ const ProductDetailPage = () => {
     
     if (inWishlist) {
       removeFromWishlist(product.id);
+      toast.success(`${product.name} removed from wishlist`);
     } else {
       addToWishlist({
         productId: product.id,
@@ -105,8 +124,17 @@ const ProductDetailPage = () => {
         color: selectedColor || undefined,
         size: selectedSize || undefined,
       });
+      toast.success(`${product.name} added to wishlist`);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-12 flex justify-center items-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-kickverse-purple"></div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -139,6 +167,7 @@ const ProductDetailPage = () => {
               src={product.imageUrl}
               alt={product.name}
               className="w-full h-full object-contain p-8"
+              onError={setupImageFallback}
             />
           </div>
         </div>
@@ -184,8 +213,10 @@ const ProductDetailPage = () => {
                   <button
                     key={color}
                     className={cn(
-                      "color-swatch", 
-                      selectedColor === color && "active"
+                      "w-8 h-8 rounded-full border-2", 
+                      selectedColor === color 
+                        ? "border-kickverse-purple" 
+                        : "border-transparent"
                     )}
                     style={{ backgroundColor: color }}
                     onClick={() => setSelectedColor(color)}

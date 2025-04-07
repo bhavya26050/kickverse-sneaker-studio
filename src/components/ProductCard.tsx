@@ -8,6 +8,7 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { useCart } from "@/contexts/cart/CartContext";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { setupImageFallback } from "@/utils/imageUtils";
 
 interface ProductCardProps {
   product: Product;
@@ -67,11 +68,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className }) => {
             src={product.imageUrl}
             alt={product.name}
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.onerror = null;
-              target.src = "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=600&auto=format&fit=crop";
-            }}
+            onError={setupImageFallback}
           />
           <Button
             variant="ghost"

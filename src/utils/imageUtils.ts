@@ -14,7 +14,11 @@ const fallbackImages = [
   "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&auto=format&fit=crop",
   "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=600&auto=format&fit=crop",
   "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&auto=format&fit=crop"
+  "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1579338559194-a162d19bf842?w=600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=600&auto=format&fit=crop"
 ];
 
 /**
@@ -65,4 +69,16 @@ export const setupImageFallback = (event: React.SyntheticEvent<HTMLImageElement,
   const target = event.target as HTMLImageElement;
   target.onerror = null; // Prevent infinite loop
   target.src = getFallbackImage();
+};
+
+/**
+ * Preload images to prevent flickering
+ */
+export const preloadImages = (urls: string[]) => {
+  urls.forEach(url => {
+    if (url) {
+      const img = new Image();
+      img.src = url;
+    }
+  });
 };
