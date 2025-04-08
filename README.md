@@ -1,73 +1,129 @@
-# Welcome to your Lovable project
+KickVerse Sneaker Studio
+An interactive e-commerce platform for premium sneakers built with modern web technologies.
 
-## Project info
+🚀 Live Demo
+Visit the live site: KickVerse Sneaker Studio
 
-**URL**: https://lovable.dev/projects/16ed83b9-eb9b-423b-a147-902a3fe4527c
+📖 About
+KickVerse Sneaker Studio is a comprehensive sneaker shopping platform featuring an extensive catalog of popular athletic footwear. Users can browse products by category, customize styles, and enjoy a seamless shopping experience with detailed product information, ratings, and stock availability.
 
-## How can I edit this code?
+✨ Features
+Diverse Product Catalog: Explore a wide range of sneakers across different categories including lifestyle, basketball, running, and skateboarding
+Product Customization: Personalize select sneaker models with color options
+Responsive Design: Enjoy a seamless shopping experience across all devices
+Supabase Integration: Dynamic product data with fallback options
+User Reviews: Browse product ratings and review counts
+Inventory Management: Real-time stock information
+Wishlist & Cart: Save favorites and manage your shopping cart
+Secure Checkout: Integrated payment processing with Stripe
+User Authentication: Create accounts and manage your profile
 
-There are several ways of editing your application.
 
-**Use Lovable**
+🛠️ Technologies
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/16ed83b9-eb9b-423b-a147-902a3fe4527c) and start prompting.
+Frontend Framework: React with TypeScript
+Build Tool: Vite
+Styling: Tailwind CSS with shadcn-ui components
+Backend/Database: Supabase
+Payment Processing: Stripe
+State Management: React Context API
+Routing: React Router
+Form Handling: React Hook Form
+Deployment: Lovable
 
-Changes made via Lovable will be committed automatically to this repo.
 
-**Use your preferred IDE**
+🧰 Getting Started
+Prerequisites
+Node.js (LTS version recommended)
+npm
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Installation
 
-Follow these steps:
+Clone the repository
+git clone https://github.com/yourusername/kickverse-sneaker-studio.git
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Navigate to the project directory
+cd kickverse-sneaker-studio
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Install dependencies
+npm install
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+Start the development server
 npm run dev
-```
 
-**Edit a file directly in GitHub**
+The application will be available at http://localhost:5173
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+🌐 Deployment
+Deploy with Lovable
+Open Lovable
+Click on Share -> Publish
+Custom Domain Setup
+Navigate to Project > Settings > Domains
+Click "Connect Domain"
+Follow the instructions in the custom domain setup guide
 
-**Use GitHub Codespaces**
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+👩‍💻 Development
 
-## What technologies are used for this project?
+Project Structure
+src: Main source code
+/components: UI components
+/contexts: React context providers
+data: Mock data and data fetching utilities
+/hooks: Custom React hooks
+/integrations: External service connectors (Supabase, Stripe)
+/lib: Utility functions and shared code
+/pages: Page components
+/types: TypeScript type definitions
+/utils: Utility functions
 
-This project is built with:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Product Data Model
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  description: string;
+  imageUrl: string;
+  category: string;
+  isCustomizable: boolean;
+  colors: string[];
+  sizes: string[];
+  rating: number;
+  reviewCount: number;
+  inStock: boolean;
+  quantity: number;
+}
 
-## How can I deploy this project?
+Database Collections
+products: Product catalog
+cart_items: User's shopping cart
+wishlist_items: User's saved items
+orders: Completed purchases
+order_items: Items within an order
 
-Simply open [Lovable](https://lovable.dev/projects/16ed83b9-eb9b-423b-a147-902a3fe4527c) and click on Share -> Publish.
 
-## Can I connect a custom domain to my Lovable project?
+📊 Key Features Implementation
 
-Yes it is!
+Product Customization
+The customization feature allows users to personalize select sneaker models with different color options for various shoe parts (base, swoosh, laces, etc.). The implementation uses a combination of React state management and dynamic rendering.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Wishlist Management
+Users can save products to their wishlist, which is persisted either in Supabase (for authenticated users) or localStorage (for guest users). The wishlist context provides a unified API for managing wishlist items regardless of authentication state.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Shopping Cart
+The shopping cart implementation supports both authenticated and guest users, with data synchronization between local storage and Supabase. Cart items can include customization details when applicable.
+
+Responsive Design
+The UI is fully responsive, adapting to different screen sizes from mobile to desktop. This is achieved through Tailwind CSS utilities and responsive component design.
+
+🤝 Contributing
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+📄 License
+This project is licensed under the MIT License.
+
+👥 Developers
+This project is maintained by the KickVerse team. For questions or support, please open an issue on GitHub.
