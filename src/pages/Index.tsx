@@ -74,17 +74,17 @@ const Index = () => {
                 Express your unique style with customized Nike sneakers. Choose your colors, materials, and make them truly yours.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Button asChild size="lg" className="bg-white text-kickverse-purple hover:bg-gray-100">
+                <Button asChild size="lg" className="bg-white text-indigo-600 hover:bg-gray-100">
                   <Link to="/customize">Start Customizing</Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="text-white border-white hover:bg-white/10">
+                <Button asChild variant="outline" size="lg" className="text-indigo-600 border-white hover:bg-white/10">
                   <Link to="/products">Shop Collection</Link>
                 </Button>
               </div>
             </div>
             <div className="w-full md:w-1/2">
               <img
-                src="https://static.nike.com/a/images/t_PDP_864_v1/f_auto,b_rgb:f5f5f5/dd40b594-4ef5-437d-8ea7-dd83a18e2a9c/custom-nike-dunk-high-by-you-shoes.png"
+                src="https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/5116e545-4d13-42b8-a396-ca05bee7c762/W+NIKE+V2K+RUN.png"
                 alt="Custom Nike Sneakers"
                 className="w-full h-auto object-contain max-w-lg mx-auto animate-fadeIn transform -rotate-12 hover:rotate-0 transition-transform duration-500"
               />
@@ -142,7 +142,7 @@ const Index = () => {
             </div>
             <div className="w-full md:w-1/2 order-1 md:order-2">
               <img
-                src="https://static.nike.com/a/images/t_PDP_864_v1/f_auto,b_rgb:f5f5f5/17a4d22c-1965-427a-a0af-92b170f0658f/custom-nike-dunk-low-by-you.png"
+                src="https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/5116e545-4d13-42b8-a396-ca05bee7c762/W+NIKE+V2K+RUN.png"
                 alt="Sneaker Customization"
                 className="w-full h-auto object-contain max-w-lg mx-auto"
               />

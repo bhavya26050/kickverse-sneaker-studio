@@ -40,13 +40,13 @@ const CustomizeView: React.FC<CustomizeViewProps> = ({
     // We're simulating this with angle-specific images
     switch(activeAngle) {
       case 0:
-        return "https://static.nike.com/a/images/t_PDP_864_v1/f_auto,b_rgb:f5f5f5/dd40b594-4ef5-437d-8ea7-dd83a18e2a9c/custom-nike-dunk-high-by-you-shoes.png";
+        return "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/e7157fa4-15ca-4aa5-bf73-816681fd4891/JR+SUPERFLY+10+CLUB+FG%2FMG.png";
       case 45:
-        return "https://static.nike.com/a/images/t_PDP_864_v1/f_auto,b_rgb:f5f5f5/c5efd4ae-21f9-48e0-9c61-0cd925e3a3d7/custom-nike-blazer-mid-77-by-you.png";
+        return "https://static.nike.com/a/images/t_PDP_864_v1/f_auto,b_rgb:f5f5f5/99e1065d-d676-430a-9217-4ec61bf16b2f/custom-nike-blazer-mid-77-shoes-by-you.png";
       case 90:
-        return "https://static.nike.com/a/images/t_PDP_864_v1/f_auto,b_rgb:f5f5f5/7fbc5e94-9eb9-49bc-a4c4-29d1ad5f6c48/custom-nike-dunk-high-by-you.png";
+        return "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/b1bcbca4-e853-4df7-b329-5be3c61ee057/NIKE+DUNK+LOW+RETRO.png";
       case 180:
-        return "https://static.nike.com/a/images/t_PDP_864_v1/f_auto,b_rgb:f5f5f5/9259e44c-93d3-4e88-99a3-2292c8d91dda/air-jordan-1-mid-mens-shoes-b3js2D.png";
+        return "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/5870c2a4-db94-4590-abb5-00f2119e6692/ZOOMX+VAPORFLY+NEXT%25+4+PRM.png";
       case 270:
         return "https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/fb7eda3c-5ac8-4d05-a18f-1c2c5e82e36e/blazer-mid-77-vintage-mens-shoes-nw30B2.png";
       default:
