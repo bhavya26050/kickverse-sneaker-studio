@@ -128,6 +128,4 @@ Contributions are welcome! Please open a Pull Request or submit an Issue to get 
 
 This project is licensed under the MIT License.  
 See the [LICENSE](LICENSE) file for details.
-```
-This format includes all main sections: About, Features, Technologies, Getting Started, Development (including project structure, data model, and DB collections), Contributing, and License.  
-You can copy and use this as your full README.md!
+
